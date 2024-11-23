@@ -13,9 +13,7 @@
 @section('title', 'Data Alternatif')
 
 @section('content')
-    <!--begin::Container-->
     <div class="container-fluid">
-        <!--begin::Row-->
         <div class="row">
             <div class="col-md-12">
                 <div class="card mb-4">
@@ -24,7 +22,6 @@
                         <a href="{{ route('alternatif.create') }}" class="btn btn-primary btn-sm float-end">Tambah
                             Alternatif</a>
                     </div>
-                    <!-- /.card-header -->
                     <div class="card-body">
                         <table class="table table-bordered">
                             <thead>
@@ -39,44 +36,38 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @php
-                                    $no = 1;
-                                @endphp
-                                @foreach ($alternatifs as $alternatif)
+                                @foreach ($alternatifs as $key => $alternatif)
                                     <tr>
-                                        <td>{{ $no++ }}</td>
+                                        <td class="text-center">{{ $key + 1 }}</td>
                                         <td class="text-center">{{ $alternatif->kode_alternatif }}</td>
                                         <td>{{ $alternatif->nama_vendor }}</td>
                                         @foreach ($kriterias as $kriteria)
                                             @php
-                                                // Mendapatkan nilai dari tabel alternatif_kriteria
-                                                $pivot = $alternatif->kriterias
-                                                    ->where('id_kriteria', $kriteria->id_kriteria)
-                                                    ->first();
-                                                $nilaiRating = $pivot ? $pivot->pivot->nilai_rating : '-';
+                                                // Mendapatkan nilai dari relasi pivot alternatif_kriteria
+                                                $pivot = $alternatif->kriterias->firstWhere(
+                                                    'id_kriteria',
+                                                    $kriteria->id_kriteria,
+                                                );
+                                                $nilaiRating = $pivot ? $pivot->pivot->nilai_rating : null;
 
-                                                // Khusus untuk "Pengalaman Menangani Proyek IT"
                                                 if ($kriteria->kode_kriteria === 'C1') {
+                                                    // Format untuk Pengalaman Menangani Proyek IT
                                                     $verbalRating =
-                                                        $nilaiRating !== '-' ? $nilaiRating . ' tahun' : '-';
+                                                        $nilaiRating !== null ? $nilaiRating . ' tahun' : '-';
                                                 } else {
-                                                    // Ubah nilai rating ke keterangan verbal
-                                                    $verbalRating =
-                                                        $nilaiRating !== '-' && isset($ratingDescriptions[$nilaiRating])
-                                                            ? $ratingDescriptions[$nilaiRating]
-                                                            : '-';
+                                                    // Format nilai untuk kriteria lainnya
+                                                    $verbalRating = isset($ratingDescriptions[$nilaiRating])
+                                                        ? $ratingDescriptions[$nilaiRating]
+                                                        : '-';
                                                 }
                                             @endphp
-                                            <td class="text-center">
-                                                {{ $verbalRating }}
-                                            </td>
+                                            <td class="text-center">{{ $verbalRating }}</td>
                                         @endforeach
                                         <td class="text-center">
                                             <a href="{{ route('alternatif.edit', $alternatif->id_alternatif) }}"
                                                 class="btn btn-warning btn-sm">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
-                                            <span class="mx-1"></span>
                                             <form action="{{ route('alternatif.destroy', $alternatif->id_alternatif) }}"
                                                 method="POST" class="d-inline">
                                                 @csrf
@@ -92,16 +83,11 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- /.card-body -->
                     <div class="card-footer clearfix">
                         {{ $alternatifs->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
-                <!-- /.card -->
             </div>
-            <!-- /.col -->
         </div>
-        <!-- /.row -->
     </div>
-    <!-- /.container-fluid -->
 @endsection
