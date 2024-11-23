@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Kriteria;
 use App\Models\MatriksKeputusan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class KriteriaController extends Controller
 {
@@ -38,8 +37,6 @@ class KriteriaController extends Controller
             'keterangan' => 'required|in:cost,benefit',
         ]);
 
-        Log::info('Data setelah validasi:', $validatedData); // Debug setelah validasi
-        // 
         Kriteria::create($validatedData);
         return redirect()->route('kriteria.index')->with('success', 'Data kriteria berhasil ditambahkan');
     }

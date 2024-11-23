@@ -6,14 +6,14 @@ use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\MatriksKeputusan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class AlternatifController extends Controller
 {
     public function index()
     {
         $alternatifs = Alternatif::paginate(10);
-        return view('alternatif.list', compact('alternatifs'));
+        $kriterias = Kriteria::all();
+        return view('alternatif.list', compact('alternatifs', 'kriterias'));
     }
 
     public function create()
@@ -71,9 +71,8 @@ class AlternatifController extends Controller
                         ? $bobotKepentingan[$kategori]
                         : 0;
                 }
-            } else {
-                Log::warning("No field mapping found for Kriteria: {$kriteria->kode_kriteria}");
             }
+
             MatriksKeputusan::create([
                 'id_alternatif' => $alternatif->id_alternatif,
                 'id_kriteria' => $kriteria->id_kriteria,

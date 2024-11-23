@@ -22,11 +22,9 @@
                                     <th style="width: 15px">#</th>
                                     <th>Kode Alternatif</th>
                                     <th>Nama Vendor</th>
-                                    <th>Pengalaman Menangani Proyek IT</th>
-                                    <th>Kualitas Layanan</th>
-                                    <th>Keamanan Layanan</th>
-                                    <th>Keahlian Teknis</th>
-                                    <th>Keterlibatan Tim</th>
+                                    @foreach ($kriterias as $kriteria)
+                                        <th>{{ $kriteria->nama_kriteria }}</th>
+                                    @endforeach
                                     <th style="max-width: 15%">Aksi</th>
                                 </tr>
                             </thead>
@@ -39,11 +37,23 @@
                                         <td>{{ $no++ }}</td>
                                         <td class="text-center">{{ $alternatif->kode_alternatif }}</td>
                                         <td>{{ $alternatif->nama_vendor }}</td>
-                                        <td class="text-center">{{ $alternatif->pengalaman_proyek }} tahun</td>
-                                        <td class="text-center">{{ $alternatif->kualitas_layanan }}</td>
-                                        <td class="text-center">{{ $alternatif->keamanan_layanan }}</td>
-                                        <td class="text-center">{{ $alternatif->keahlian_teknis }}</td>
-                                        <td class="text-center">{{ $alternatif->keterlibatan_tim }}</td>
+                                        @foreach ($kriterias as $kriteria)
+                                            @php
+                                                $field =
+                                                    $kriteria->kode_kriteria === 'C1'
+                                                        ? 'pengalaman_proyek'
+                                                        : strtolower(str_replace(' ', '_', $kriteria->nama_kriteria));
+                                                $value =
+                                                    $field === 'pengalaman_proyek'
+                                                        ? ($alternatif->{$field}
+                                                            ? $alternatif->{$field} . ' tahun'
+                                                            : '-')
+                                                        : $alternatif->{$field} ?? '-';
+                                            @endphp
+                                            <td class="text-center">
+                                                {{ $value }}
+                                            </td>
+                                        @endforeach
                                         <td class="text-center">
                                             <a href="{{ route('alternatif.edit', $alternatif->id_alternatif) }}"
                                                 class="btn btn-warning btn-sm">
