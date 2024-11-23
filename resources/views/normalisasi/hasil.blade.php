@@ -15,8 +15,14 @@
                             <thead>
                                 <tr class="text-center">
                                     <th>Alternatif</th>
-                                    @foreach ($hasilNormalisasi->first()->pluck('kriteria') as $kriteria)
-                                        <th>{{ $kriteria['kode_kriteria'] }}<sup>{{ $kriteria['nilai_bobot'] }}</sup></th>
+                                    @foreach ($kriterias as $kriteria)
+                                        <th>{{ $kriteria->kode_kriteria }}<sup>{{ number_format($kriteria->nilai_bobot, 3) }}
+                                                @if ($kriteria->keterangan === 'cost')
+                                                    (Cost)
+                                                @else
+                                                    (Benefit)
+                                                @endif
+                                            </sup></th>
                                     @endforeach
                                     <th>Hasil</th>
                                 </tr>
@@ -31,7 +37,7 @@
                                         @foreach ($data as $nilai)
                                             <td class="text-center">{{ number_format($nilai->nilai_normalisasi, 3) }}</td>
                                             @php
-                                                $hasil *= $nilai->nilai_normalisasi;
+                                                $hasil *= $nilai->nilai_normalisasi; // Perkalian nilai normalisasi
                                             @endphp
                                         @endforeach
                                         <td class="text-center">{{ number_format($hasil, 3) }}</td>

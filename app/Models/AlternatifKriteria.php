@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MatriksKeputusan extends Model
+class AlternatifKriteria extends Model
 {
     use HasFactory;
 
-    protected $table = 'matriks_keputusan';
-    protected $primaryKey = 'id_matriks';
+    protected $table = 'alternatif_kriteria';
+    protected $primaryKey = 'id';
     protected $fillable = ['id_alternatif', 'id_kriteria', 'nilai_rating'];
 
     public $timestamps = false;

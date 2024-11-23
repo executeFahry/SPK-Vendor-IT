@@ -1,3 +1,13 @@
+@php
+    // Mapping nilai_rating ke keterangan verbal
+    $ratingDescriptions = [
+        1 => 'Tidak Baik',
+        2 => 'Cukup Baik',
+        3 => 'Baik',
+        4 => 'Sangat Baik',
+    ];
+@endphp
+
 @extends('layout')
 
 @section('title', 'Data Alternatif')
@@ -39,19 +49,26 @@
                                         <td>{{ $alternatif->nama_vendor }}</td>
                                         @foreach ($kriterias as $kriteria)
                                             @php
-                                                $field =
-                                                    $kriteria->kode_kriteria === 'C1'
-                                                        ? 'pengalaman_proyek'
-                                                        : strtolower(str_replace(' ', '_', $kriteria->nama_kriteria));
-                                                $value =
-                                                    $field === 'pengalaman_proyek'
-                                                        ? ($alternatif->{$field}
-                                                            ? $alternatif->{$field} . ' tahun'
-                                                            : '-')
-                                                        : $alternatif->{$field} ?? '-';
+                                                // Mendapatkan nilai dari tabel alternatif_kriteria
+                                                $pivot = $alternatif->kriterias
+                                                    ->where('id_kriteria', $kriteria->id_kriteria)
+                                                    ->first();
+                                                $nilaiRating = $pivot ? $pivot->pivot->nilai_rating : '-';
+
+                                                // Khusus untuk "Pengalaman Menangani Proyek IT"
+                                                if ($kriteria->kode_kriteria === 'C1') {
+                                                    $verbalRating =
+                                                        $nilaiRating !== '-' ? $nilaiRating . ' tahun' : '-';
+                                                } else {
+                                                    // Ubah nilai rating ke keterangan verbal
+                                                    $verbalRating =
+                                                        $nilaiRating !== '-' && isset($ratingDescriptions[$nilaiRating])
+                                                            ? $ratingDescriptions[$nilaiRating]
+                                                            : '-';
+                                                }
                                             @endphp
                                             <td class="text-center">
-                                                {{ $value }}
+                                                {{ $verbalRating }}
                                             </td>
                                         @endforeach
                                         <td class="text-center">

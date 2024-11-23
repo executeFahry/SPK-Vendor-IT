@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kriteria;
-use App\Models\MatriksKeputusan;
 use Illuminate\Http\Request;
 
 class KriteriaController extends Controller
@@ -31,13 +30,20 @@ class KriteriaController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'kode_kriteria' => 'required|string|max:4',
+            'kode_kriteria' => 'required|string|max:4|unique:data_kriteria,kode_kriteria',
             'nama_kriteria' => 'required|string|max:150',
             'nilai_bobot' => 'required|numeric',
             'keterangan' => 'required|in:cost,benefit',
         ]);
 
-        Kriteria::create($validatedData);
+        $kriteria = Kriteria::create($validatedData);
+
+        // Tambahkan kriteria baru ke semua alternatif yang ada dengan nilai default
+        $alternatifs = \App\Models\Alternatif::all(); // Ambil semua alternatif
+        foreach ($alternatifs as $alternatif) {
+            $alternatif->kriterias()->attach($kriteria->id_kriteria, ['nilai_rating' => 0]); // Nilai default 0
+        }
+
         return redirect()->route('kriteria.index')->with('success', 'Data kriteria berhasil ditambahkan');
     }
 
@@ -63,15 +69,17 @@ class KriteriaController extends Controller
     public function update(Request $request, Kriteria $kriteria)
     {
         $validatedData = $request->validate([
-            'kode_kriteria' => 'required|string|max:4',
+            'kode_kriteria' => 'required|string|max:4|unique:data_kriteria,kode_kriteria,' . $kriteria->id_kriteria . ',id_kriteria',
             'nama_kriteria' => 'required|string|max:150',
             'nilai_bobot' => 'required|numeric',
             'keterangan' => 'required|in:cost,benefit',
         ]);
 
         $kriteria->update($validatedData);
+
         return redirect()->route('kriteria.index')->with('success', 'Data kriteria berhasil diubah');
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -79,8 +87,10 @@ class KriteriaController extends Controller
 
     public function destroy(Kriteria $kriteria)
     {
-        // Hapus Matriks Keputusan terkait Kriteria
-        MatriksKeputusan::where('id_kriteria', $kriteria->id_kriteria)->delete();
+        // Hapus relasi pada tabel alternatif_kriteria
+        $kriteria->alternatifs()->detach();
+
+        // Hapus kriteria
         $kriteria->delete();
 
         return redirect()->route('kriteria.index')->with('success', 'Data kriteria berhasil dihapus');

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Alternatif;
 use App\Models\Kriteria;
-use App\Models\MatriksKeputusan;
 use Illuminate\Http\Request;
 
 class AlternatifController extends Controller
@@ -35,6 +34,7 @@ class AlternatifController extends Controller
 
 
         $alternatif = Alternatif::create($request->all());
+        $kriterias = Kriteria::all();
 
         // Field mapping untuk kriteria
         $fieldMapping = [
@@ -53,31 +53,23 @@ class AlternatifController extends Controller
             'Sangat Baik' => 4,
         ];
 
-        // Generate Matriks Keputusan
-        $kriterias = Kriteria::all();
-
         foreach ($kriterias as $kriteria) {
             $field = $fieldMapping[$kriteria->kode_kriteria] ?? null;
             $nilaiRating = 0;
 
             if ($field) {
                 if ($kriteria->kode_kriteria === 'C1') {
-                    // Ambil nilai langsung untuk C1
+                    // Langsung ambil nilai
                     $nilaiRating = $alternatif->{$field};
                 } else {
-                    // Ambil kategori dan mapping ke nilai bobot
+                    // Mapping nilai bobot untuk kategori
                     $kategori = $alternatif->{$field} ?? null;
-                    $nilaiRating = $kategori && isset($bobotKepentingan[$kategori])
-                        ? $bobotKepentingan[$kategori]
-                        : 0;
+                    $nilaiRating = $kategori && isset($bobotKepentingan[$kategori]) ? $bobotKepentingan[$kategori] : 0;
                 }
             }
 
-            MatriksKeputusan::create([
-                'id_alternatif' => $alternatif->id_alternatif,
-                'id_kriteria' => $kriteria->id_kriteria,
-                'nilai_rating' => $nilaiRating, // Ambil nilai rating kategori
-            ]);
+            // Simpan ke tabel alternatif_kriteria
+            $alternatif->kriterias()->attach($kriteria->id_kriteria, ['nilai_rating' => $nilaiRating]);
         }
 
         return redirect()->route('alternatif.index')->with('success', 'Data alternatif berhasil ditambahkan');
@@ -104,6 +96,8 @@ class AlternatifController extends Controller
         // Update data alternatif
         $alternatif->update($request->all());
 
+        $kriterias = Kriteria::all();
+
         // Mapping untuk nilai bobot kepentingan
         $bobotKepentingan = [
             'Tidak Baik' => 1,
@@ -124,26 +118,19 @@ class AlternatifController extends Controller
 
         foreach ($kriterias as $kriteria) {
             $field = $fieldMapping[$kriteria->kode_kriteria] ?? null;
+            $nilaiRating = 0;
 
             if ($field) {
                 if ($kriteria->kode_kriteria === 'C1') {
-                    $nilaiRating = $alternatif->{$field}; // Ambil nilai langsung untuk C1
+                    $nilaiRating = $alternatif->{$field};
                 } else {
                     $kategori = $alternatif->{$field} ?? null;
-                    $nilaiRating = $kategori && isset($bobotKepentingan[$kategori])
-                        ? $bobotKepentingan[$kategori]
-                        : 0; // Default jika kategori tidak valid
+                    $nilaiRating = $kategori && isset($bobotKepentingan[$kategori]) ? $bobotKepentingan[$kategori] : 0;
                 }
-
-                // Update nilai pada matriks keputusan
-                MatriksKeputusan::updateOrCreate(
-                    [
-                        'id_alternatif' => $alternatif->id_alternatif,
-                        'id_kriteria' => $kriteria->id_kriteria,
-                    ],
-                    ['nilai_rating' => $nilaiRating]
-                );
             }
+
+            // Update nilai pada tabel alternatif_kriteria
+            $alternatif->kriterias()->updateExistingPivot($kriteria->id_kriteria, ['nilai_rating' => $nilaiRating]);
         }
 
         return redirect()->route('alternatif.index')->with('success', 'Data alternatif dan matriks keputusan berhasil diperbarui');
@@ -151,8 +138,10 @@ class AlternatifController extends Controller
 
     public function destroy(Alternatif $alternatif)
     {
-        // Hapus Matriks Keputusan terkait Alternatif
-        MatriksKeputusan::where('id_alternatif', $alternatif->id_alternatif)->delete();
+        // Hapus relasi pada tabel alternatif_kriteria
+        $alternatif->kriterias()->detach();
+
+        // Hapus data alternatif
         $alternatif->delete();
 
         return redirect()->route('alternatif.index')->with('success', 'Data alternatif berhasil dihapus');

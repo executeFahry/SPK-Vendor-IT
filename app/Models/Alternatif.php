@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\MatriksKeputusan;
 
 class Alternatif extends Model
 {
@@ -25,13 +24,9 @@ class Alternatif extends Model
 
     public $timestamps = false;
 
-    public function matriks()
-    {
-        return $this->hasMany(MatriksKeputusan::class, 'id_alternatif',);
-    }
-
     public function kriterias()
     {
-        return $this->hasManyThrough(Kriteria::class, MatriksKeputusan::class, 'id_alternatif', 'id_kriteria');
+        return $this->belongsToMany(Kriteria::class, 'alternatif_kriteria', 'id_alternatif', 'id_kriteria')
+            ->withPivot('nilai_rating');
     }
 }

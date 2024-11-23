@@ -8,7 +8,8 @@
             <div class="col-md-12">
                 <div class="card mb-4">
                     <div class="card-header">
-                        <a href="{{ route('normalisasi.hitung') }}" class="btn btn-success btn-sm float-end">Normalisasi</a>
+                        <a href="{{ route('normalisasi.hitung') }}"
+                            class="btn btn-primary btn-sm float-end me-2">Normalisasi</a>
                     </div>
                     <div class="card-body">
                         <table class="table table-bordered">
@@ -26,7 +27,7 @@
                                         <td class="text-center">{{ $alternatif->kode_alternatif }}</td>
                                         @foreach ($kriterias as $kriteria)
                                             <td class="text-center">
-                                                {{ $matriks->where('id_alternatif', $alternatif->id_alternatif)->where('id_kriteria', $kriteria->id_kriteria)->first()->nilai_rating ?? '-' }}
+                                                {{ $alternatif->kriterias->where('id_kriteria', $kriteria->id_kriteria)->first()->pivot->nilai_rating ?? '-' }}
                                             </td>
                                         @endforeach
                                     </tr>

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AlternatifController;
 use App\Http\Controllers\KriteriaController;
-use App\Http\Controllers\MatriksKeputusanController;
+use App\Http\Controllers\AlternatifKriteriaController;
 use App\Http\Controllers\NormalisasiController;
 use App\Http\Controllers\RankingController;
 
@@ -32,12 +32,12 @@ Route::resource('kriteria', KriteriaController::class)->parameters([
 ]);
 
 // Matriks Keputusan Routes
-Route::resource('matriks', MatriksKeputusanController::class)->parameters([
-    'matriks' => 'matriks' // gnatikan 'matriks' sebagai parameter
+Route::resource('matriks', AlternatifKriteriaController::class)->parameters([
+    'matriks' => 'matriks' // Menggunakan 'matriks' sebagai parameter
 ])->except('show');
 
 // Generate Matriks Keputusan
-Route::post('/matriks/generate', [MatriksKeputusanController::class, 'generate'])->name('matriks.generate');
+Route::post('/matriks/generate', [AlternatifKriteriaController::class, 'generateMatriks'])->name('matriks.generate');
 
 // Normalisasi Routes
 Route::get('/normalisasi/hitung', [NormalisasiController::class, 'hitung'])->name('normalisasi.hitung');
