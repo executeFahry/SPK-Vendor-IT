@@ -5,11 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>@yield('title', 'Dikirimin | Dashboard')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="title" content="Dikirimin | Dashboard">
-    <meta name="author" content="ColorlibHQ">
-    <meta name="description"
-        content="Dikirimin merupakan sebuah sistem informasi untuk penjadwalan pengiriman barang pada layanan kurir yang berbasis web. Sistem penjadwalan diperkuat dengan Algoritma Round Robin sebagai metode untuk mengoptimalisasi penjadwalan pengiriman barang.">
-
+    <meta name="title" content="SPK Vendor IT | Dashboard">
     <!-- Fonts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
         integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous">
